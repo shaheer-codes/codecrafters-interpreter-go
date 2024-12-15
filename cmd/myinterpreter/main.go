@@ -46,21 +46,9 @@ func main() {
 
 	exitCode := 0
 
-	var storedEqual, storedBang bool
+	for idx, char := range fileContents {
 
-	for _, curr := range fileContents {
-
-		if curr != '=' && storedEqual {
-			fmt.Println("EQUAL = null")
-			storedEqual = false
-		}
-
-		if curr != '=' && storedBang {
-			fmt.Println("BANG ! null")
-			storedBang = false
-		}
-
-		switch curr {
+		switch char {
 		case '(':
 			fmt.Println("LEFT_PAREN ( null")
 		case ')':
@@ -82,31 +70,21 @@ func main() {
 		case '*':
 			fmt.Println("STAR * null")
 		case '=':
-			if storedEqual {
+			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
 				fmt.Println("EQUAL_EQUAL == null")
-				storedEqual = false
-			} else if storedBang {
-				fmt.Println("BANG_EQUAL != null")
-				storedBang = false
 			} else {
-				storedEqual = true
+				fmt.Println("EQUAL = null")
 			}
 		case '!':
-			storedBang = true
+			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+				fmt.Println("BANG_EQUAL != null")
+			} else {
+				fmt.Println("BANG ! null")
+			}
 		default:
-			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(curr))
+			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(char))
 			exitCode = 65
 		}
-	}
-
-	if storedEqual {
-		fmt.Println("EQUAL = null")
-		storedEqual = false
-	}
-
-	if storedBang {
-		fmt.Println("BANG ! null")
-		storedBang = false
 	}
 
 	fmt.Println("EOF  null")

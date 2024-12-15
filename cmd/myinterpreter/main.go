@@ -43,7 +43,7 @@ func main() {
 	}
 
 	fileContents := string(rawFileContents)
-	// ,, ., -, +, ; and *
+	errFlag := false
 	for _, curr := range fileContents {
 		switch curr {
 		case '(':
@@ -68,18 +68,26 @@ func main() {
 			fmt.Println("STAR * null")
 		case '$':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: $")
+			errFlag = true
 			os.Exit(65)
 		case '#':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: #")
+			errFlag = true
 			os.Exit(65)
 		case '@':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: @")
+			errFlag = true
 			os.Exit(65)
 		case '~':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: ~")
-			os.Exit(65)
+			errFlag = true
 		}
 	}
 
 	fmt.Println("EOF  null")
+	if errFlag {
+		os.Exit(65)
+	} else {
+		os.Exit(0)
+	}
 }

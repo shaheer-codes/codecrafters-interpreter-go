@@ -66,26 +66,12 @@ func main() {
 			fmt.Println("SEMICOLON ; null")
 		case '*':
 			fmt.Println("STAR * null")
-		case '$':
-			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: $")
-			errFlag = true
-			os.Exit(65)
-		case '#':
-			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: #")
-			errFlag = true
-			os.Exit(65)
-		case '@':
-			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: @")
-			errFlag = true
-			os.Exit(65)
-		case '~':
-			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: ~")
-			errFlag = true
+		default:
+			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", curr)
 		}
 	}
 
 	fmt.Println("EOF  null")
-	fmt.Fprintln(os.Stderr, "EOF  null")
 	if errFlag {
 		os.Exit(65)
 	} else {

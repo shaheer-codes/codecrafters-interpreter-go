@@ -46,13 +46,18 @@ func main() {
 
 	exitCode := 0
 
-	var storedEqual bool
+	var storedEqual, storedBang bool
 
 	for _, curr := range fileContents {
 
 		if curr != '=' && storedEqual {
 			fmt.Println("EQUAL = null")
 			storedEqual = false
+		}
+
+		if curr != '=' && storedBang {
+			fmt.Println("BANG ! null")
+			storedBang = false
 		}
 
 		switch curr {
@@ -80,9 +85,14 @@ func main() {
 			if storedEqual {
 				fmt.Println("EQUAL_EQUAL == null")
 				storedEqual = false
+			} else if storedBang {
+				fmt.Println("BANG_EQUAL != null")
+				storedBang = false
 			} else {
 				storedEqual = true
 			}
+		case '!':
+			storedBang = true
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(curr))
 			exitCode = 65
@@ -92,6 +102,11 @@ func main() {
 	if storedEqual {
 		fmt.Println("EQUAL = null")
 		storedEqual = false
+	}
+
+	if storedBang {
+		fmt.Println("BANG ! null")
+		storedBang = false
 	}
 
 	fmt.Println("EOF  null")

@@ -43,7 +43,6 @@ func main() {
 	}
 
 	fileContents := string(rawFileContents)
-	errFlag := false
 	for _, curr := range fileContents {
 		switch curr {
 		case '(':
@@ -68,13 +67,9 @@ func main() {
 			fmt.Println("STAR * null")
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", curr)
+			os.Exit(65)
 		}
 	}
 
 	fmt.Println("EOF  null")
-	if errFlag {
-		os.Exit(65)
-	} else {
-		os.Exit(0)
-	}
 }

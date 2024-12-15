@@ -88,6 +88,11 @@ func main() {
 		}
 	}
 
+	if storedEqual {
+		fmt.Println("EQUAL = null")
+		storedEqual = false
+	}
+
 	fmt.Println("EOF  null")
 	os.Exit(exitCode)
 }

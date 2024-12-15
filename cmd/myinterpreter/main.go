@@ -8,6 +8,14 @@ import (
 const (
 	LEFT_PAREN  rune = '('
 	RIGHT_PAREN rune = ')'
+	LEFT_BRACE  rune = '{'
+	RIGHT_BRACE rune = '}'
+	COMMA       rune = ','
+	DOT         rune = '.'
+	MINUS       rune = '-'
+	PLUS        rune = '+'
+	SEMICOLON   rune = ';'
+	STAR        rune = '*'
 )
 
 func main() {
@@ -41,8 +49,21 @@ func main() {
 			fmt.Println("LEFT_PAREN ( null")
 		case RIGHT_PAREN:
 			fmt.Println("RIGHT_PAREN ) null")
+		case LEFT_BRACE:
+			fmt.Println("LEFT_BRACE { null")
+		case RIGHT_BRACE:
+			fmt.Println("RIGHT_BRACE } null")
 		}
+
+		// 	case '{': addToken(LEFT_BRACE); break;
+		//   case '}': addToken(RIGHT_BRACE); break;
+		//   case ',': addToken(COMMA); break;
+		//   case '.': addToken(DOT); break;
+		//   case '-': addToken(MINUS); break;
+		//   case '+': addToken(PLUS); break;
+		//   case ';': addToken(SEMICOLON); break;
+		//   case '*': addToken(STAR); break;
 	}
 
-	fmt.Println("EOF null")
+	fmt.Println("EOF  null")
 }

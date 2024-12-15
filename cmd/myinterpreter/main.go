@@ -83,13 +83,13 @@ func main() {
 			}
 		case '<':
 			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
-				fmt.Println("LESS_EQUAL != null")
+				fmt.Println("LESS_EQUAL <= null")
 			} else {
 				fmt.Println("LESS < null")
 			}
 		case '>':
 			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
-				fmt.Println("GREATER_EQUAL != null")
+				fmt.Println("GREATER_EQUAL >= null")
 			} else {
 				fmt.Println("GREATER > null")
 			}

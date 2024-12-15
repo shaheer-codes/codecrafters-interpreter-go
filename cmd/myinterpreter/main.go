@@ -81,6 +81,18 @@ func main() {
 			} else {
 				fmt.Println("BANG ! null")
 			}
+		case '<':
+			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+				fmt.Println("LESS_EQUAL != null")
+			} else {
+				fmt.Println("LESS < null")
+			}
+		case '>':
+			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+				fmt.Println("GREATER_EQUAL != null")
+			} else {
+				fmt.Println("GREATER > null")
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(char))
 			exitCode = 65

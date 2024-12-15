@@ -66,7 +66,7 @@ func main() {
 		case '*':
 			fmt.Println("STAR * null")
 		default:
-			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", curr)
+			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(curr))
 			os.Exit(65)
 		}
 	}

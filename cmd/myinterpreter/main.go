@@ -85,6 +85,7 @@ func main() {
 	}
 
 	fmt.Println("EOF  null")
+	fmt.Fprintln(os.Stderr, "EOF  null")
 	if errFlag {
 		os.Exit(65)
 	} else {

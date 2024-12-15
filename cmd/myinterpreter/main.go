@@ -46,7 +46,10 @@ func main() {
 
 	exitCode := 0
 
+	var storedEqual bool
+
 	for _, curr := range fileContents {
+
 		switch curr {
 		case '(':
 			fmt.Println("LEFT_PAREN ( null")
@@ -68,9 +71,20 @@ func main() {
 			fmt.Println("SEMICOLON ; null")
 		case '*':
 			fmt.Println("STAR * null")
+		case '=':
+			if storedEqual {
+				fmt.Println("EQUAL_EQUAL == null")
+			} else {
+				storedEqual = true
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(curr))
 			exitCode = 65
+		}
+
+		if curr != '=' && storedEqual {
+			fmt.Println("EQUAL = null")
+			storedEqual = false
 		}
 	}
 

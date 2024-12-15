@@ -68,12 +68,16 @@ func main() {
 			fmt.Println("STAR * null")
 		case '$':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: $")
+			os.Exit(65)
 		case '#':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: #")
+			os.Exit(65)
 		case '@':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: @")
+			os.Exit(65)
 		case '~':
 			fmt.Fprintln(os.Stderr, "[line 1] Error: Unexpected character: ~")
+			os.Exit(65)
 		}
 	}
 

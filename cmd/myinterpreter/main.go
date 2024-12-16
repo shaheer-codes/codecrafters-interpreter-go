@@ -114,6 +114,19 @@ func main() {
 			continue
 		case ' ':
 			continue
+		case '"':
+			var str []byte
+			for idx < contentsLength {
+				idx++
+				if idx == contentsLength {
+					fmt.Fprintf(os.Stderr, "[line %v] Error: Unterminated string.", line)
+				} else if fileContents[idx] == '"' {
+					fmt.Printf("STRING \"%v\" %v\n", str, str)
+					break
+				} else {
+					str = append(str, fileContents[idx])
+				}
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))
 			exitCode = 65

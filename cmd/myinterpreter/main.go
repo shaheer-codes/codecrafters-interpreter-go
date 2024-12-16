@@ -103,6 +103,7 @@ func main() {
 				for idx < contentsLength && fileContents[idx] != '\n' {
 					idx++
 				}
+				idx++
 			} else {
 				fmt.Println("SLASH / null")
 			}

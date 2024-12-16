@@ -106,11 +106,8 @@ func main() {
 				fmt.Println("SLASH / null")
 			}
 		case '\n':
-			continue
 		case '\t':
-			continue
 		case ' ':
-			continue
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(fileContents[idx]))
 			exitCode = 65

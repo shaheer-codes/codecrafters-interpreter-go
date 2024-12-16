@@ -97,6 +97,12 @@ func main() {
 			} else {
 				fmt.Println("GREATER > null")
 			}
+		case '/':
+			if idx+1 < contentsLength && fileContents[idx+1] == '/' {
+				idx++
+			} else {
+				fmt.Println("SLASH / null")
+			}
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(fileContents[idx]))
 			exitCode = 65

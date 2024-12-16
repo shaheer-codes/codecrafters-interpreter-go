@@ -47,7 +47,7 @@ func main() {
 	exitCode := 0
 
 	for idx := 0; idx < contentsLength; idx++ {
-	base:
+
 		switch fileContents[idx] {
 		case '(':
 			fmt.Println("LEFT_PAREN ( null")
@@ -107,13 +107,13 @@ func main() {
 			}
 		case '\n':
 			idx++
-			break base
+			continue
 		case '\t':
 			idx++
-			break base
+			continue
 		case ' ':
 			idx++
-			break base
+			continue
 		default:
 			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(fileContents[idx]))
 			exitCode = 65

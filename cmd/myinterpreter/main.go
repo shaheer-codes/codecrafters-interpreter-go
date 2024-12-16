@@ -100,7 +100,7 @@ func main() {
 			}
 		case '/':
 			if idx+1 < contentsLength && fileContents[idx+1] == '/' {
-				for idx < contentsLength || fileContents[idx] != '\n' {
+				for idx < contentsLength && fileContents[idx] != '\n' {
 					idx++
 				}
 			} else {

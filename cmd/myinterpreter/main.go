@@ -115,16 +115,17 @@ func main() {
 		case ' ':
 			continue
 		case '"':
-			var str []byte
+			var bytes []byte
 			for idx < contentsLength {
 				idx++
 				if idx == contentsLength {
 					fmt.Fprintf(os.Stderr, "[line %v] Error: Unterminated string.", line)
 				} else if fileContents[idx] == '"' {
+					str := string(bytes)
 					fmt.Printf("STRING \"%v\" %v\n", str, str)
 					break
 				} else {
-					str = append(str, fileContents[idx])
+					bytes = append(bytes, fileContents[idx])
 				}
 			}
 		default:

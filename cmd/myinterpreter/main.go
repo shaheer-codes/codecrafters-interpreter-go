@@ -120,6 +120,7 @@ func main() {
 				idx++
 				if idx == contentsLength {
 					fmt.Fprintf(os.Stderr, "[line %v] Error: Unterminated string.", line)
+					exitCode = 65
 				} else if fileContents[idx] == '"' {
 					str := string(bytes)
 					fmt.Printf("STRING \"%v\" %v\n", str, str)

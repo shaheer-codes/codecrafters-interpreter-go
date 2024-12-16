@@ -90,6 +90,7 @@ func main() {
 		case '>':
 			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
 				fmt.Println("GREATER_EQUAL >= null")
+				idx++
 			} else {
 				fmt.Println("GREATER > null")
 			}

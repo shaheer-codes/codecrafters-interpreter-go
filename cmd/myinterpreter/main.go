@@ -133,7 +133,7 @@ func main() {
 				if floatingLiteral == math.Trunc(floatingLiteral) {
 					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
 				} else {
-					fmt.Printf("NUMBER %v %f\n", floatingLiteral, floatingLiteral)
+					fmt.Printf("NUMBER %v %v\n", strconv.FormatFloat(floatingLiteral, 'f', -1, 64), strconv.FormatFloat(floatingLiteral, 'f', -1, 64))
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))

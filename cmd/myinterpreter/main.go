@@ -136,7 +136,7 @@ func main() {
 					stringLiteral = strconv.FormatFloat(floatingLiteral, 'f', -1, 64)
 					floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
 					if floatingLiteral == math.Trunc(floatingLiteral) {
-						fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
+						fmt.Printf("NUMBER %v %.1f\n", stringLiteral, floatingLiteral)
 					} else {
 						fmt.Printf("NUMBER %v %s\n", stringLiteral, stringLiteral)
 					}
@@ -155,5 +155,5 @@ func main() {
 }
 
 func isNumerical(b byte) bool {
-	return b >= 48 && b <= 57
+	return b >= 48 && b <= 57 || b == '.'
 }

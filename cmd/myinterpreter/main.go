@@ -2,24 +2,12 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
+	"strconv"
 )
 
-// const (
-// 	LEFT_PAREN  rune = '('
-// 	RIGHT_PAREN rune = ')'
-// 	LEFT_BRACE  rune = '{'
-// 	RIGHT_BRACE rune = '}'
-// 	COMMA       rune = ','
-// 	DOT         rune = '.'
-// 	MINUS       rune = '-'
-// 	PLUS        rune = '+'
-// 	SEMICOLON   rune = ';'
-// 	STAR        rune = '*'
-// )
-
 func main() {
-	// You can use print statements as follows for debugging, they'll be visible when running tests.
 	fmt.Fprintln(os.Stderr, "Logs from your program will appear here!")
 
 	if len(os.Args) < 3 {
@@ -43,12 +31,13 @@ func main() {
 	}
 
 	fileContents := string(rawFileContents)
-
+	contentsLength := len(fileContents)
 	exitCode := 0
+	line := 1
 
-	for idx, char := range fileContents {
+	for idx := 0; idx < contentsLength; idx++ {
 
-		switch char {
+		switch fileContents[idx] {
 		case '(':
 			fmt.Println("LEFT_PAREN ( null")
 		case ')':
@@ -70,36 +59,93 @@ func main() {
 		case '*':
 			fmt.Println("STAR * null")
 		case '=':
-			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
 				fmt.Println("EQUAL_EQUAL == null")
+				idx++
 			} else {
 				fmt.Println("EQUAL = null")
 			}
 		case '!':
-			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
 				fmt.Println("BANG_EQUAL != null")
+				idx++
 			} else {
 				fmt.Println("BANG ! null")
 			}
 		case '<':
-			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
 				fmt.Println("LESS_EQUAL <= null")
+				idx++
 			} else {
 				fmt.Println("LESS < null")
 			}
 		case '>':
-			if idx+1 < len(fileContents) && fileContents[idx+1] == '=' {
+			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
 				fmt.Println("GREATER_EQUAL >= null")
-				continue
+				idx++
 			} else {
 				fmt.Println("GREATER > null")
 			}
+		case '/':
+			if idx+1 < contentsLength && fileContents[idx+1] == '/' {
+				for idx < contentsLength && fileContents[idx] != '\n' {
+					idx++
+				}
+				line++
+			} else {
+				fmt.Println("SLASH / null")
+			}
+		case '\n':
+			line++
+			continue
+		case '\t':
+			continue
+		case '\r':
+			continue
+		case ' ':
+			continue
+		case '"':
+			var bytes []byte
+			for idx < contentsLength {
+				idx++
+				if idx == contentsLength {
+					fmt.Fprintf(os.Stderr, "[line %v] Error: Unterminated string.", line)
+					exitCode = 65
+				} else if fileContents[idx] == '"' {
+					str := string(bytes)
+					fmt.Printf("STRING \"%v\" %v\n", str, str)
+					break
+				} else {
+					bytes = append(bytes, fileContents[idx])
+				}
+			}
 		default:
-			fmt.Fprintf(os.Stderr, "[line 1] Error: Unexpected character: %v\n", string(char))
-			exitCode = 65
+			if isNumerical(fileContents[idx]) {
+				var numericalBytes []byte
+
+				for idx+1 < contentsLength && isNumerical(fileContents[idx+1]) {
+					numericalBytes = append(numericalBytes, fileContents[idx])
+					idx++
+				}
+
+				numericalBytes = append(numericalBytes, fileContents[idx])
+				floatingLiteral, _ := strconv.ParseFloat(string(numericalBytes), 64)
+				if floatingLiteral == math.Trunc(floatingLiteral) {
+					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
+				} else {
+					fmt.Printf("NUMBER %v %f\n", floatingLiteral, floatingLiteral)
+				}
+			} else {
+				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))
+				exitCode = 65
+			}
 		}
 	}
 
 	fmt.Println("EOF  null")
 	os.Exit(exitCode)
+}
+
+func isNumerical(b byte) bool {
+	return b >= 48 && b <= 57 || b == '.'
 }

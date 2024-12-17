@@ -135,7 +135,7 @@ func main() {
 					zeroTrimed := strconv.FormatFloat(floatingLiteral, 'f', -1, 64)
 					integerLiteral, _ := strconv.Atoi(strings.Split(stringLiteral, ".")[0])
 					if zeroTrimed == strconv.Itoa(integerLiteral) {
-						fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
+						fmt.Printf("NUMBER %v %.1f\n", stringLiteral, floatingLiteral)
 					} else {
 						fmt.Printf("NUMBER %v %s\n", zeroTrimed, zeroTrimed)
 					}

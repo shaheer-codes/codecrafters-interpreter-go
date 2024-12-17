@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -133,12 +132,12 @@ func main() {
 				stringLiteral := string(numericalBytes)
 				floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
 				if strings.Contains(stringLiteral, ".") {
-					stringLiteral = strconv.FormatFloat(floatingLiteral, 'f', -1, 64)
-					floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
-					if floatingLiteral == math.Trunc(floatingLiteral) {
+					zeroTrimed := strconv.FormatFloat(floatingLiteral, 'f', -1, 64)
+					integerLiteral, _ := strconv.Atoi(strings.Split(stringLiteral, ".")[0])
+					if zeroTrimed == strconv.Itoa(integerLiteral) {
 						fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
 					} else {
-						fmt.Printf("NUMBER %v %s\n", stringLiteral, stringLiteral)
+						fmt.Printf("NUMBER %v %s\n", zeroTrimed, zeroTrimed)
 					}
 				} else {
 					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)

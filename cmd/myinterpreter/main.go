@@ -131,9 +131,9 @@ func main() {
 				numericalBytes = append(numericalBytes, fileContents[idx])
 				floatingLiteral, _ := strconv.ParseFloat(string(numericalBytes), 64)
 				if floatingLiteral == math.Trunc(floatingLiteral) {
-					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
+					fmt.Printf("NUMBER %f %.1f\n", floatingLiteral, floatingLiteral)
 				} else {
-					fmt.Printf("NUMBER %v %v\n", strconv.FormatFloat(floatingLiteral, 'f', -1, 64), strconv.FormatFloat(floatingLiteral, 'f', -1, 64))
+					fmt.Printf("NUMBER %f %v\n", floatingLiteral, strconv.FormatFloat(floatingLiteral, 'f', -1, 64))
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))

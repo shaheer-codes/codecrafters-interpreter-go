@@ -131,9 +131,8 @@ func main() {
 				numericalBytes = append(numericalBytes, fileContents[idx])
 				stringLiteral := string(numericalBytes)
 				floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
-				fmt.Println(floatingLiteral)
 				if strings.Contains(stringLiteral, ".") {
-					fmt.Printf("NUMBER %v %v\n", floatingLiteral, floatingLiteral)
+					fmt.Printf("NUMBER %v %v\n", stringLiteral, floatingLiteral)
 				} else {
 					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
 				}

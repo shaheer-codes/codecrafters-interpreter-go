@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"os"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -129,11 +129,12 @@ func main() {
 				}
 
 				numericalBytes = append(numericalBytes, fileContents[idx])
-				floatingLiteral, _ := strconv.ParseFloat(string(numericalBytes), 64)
-				if floatingLiteral == math.Trunc(floatingLiteral) {
-					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
+				stringLiteral := string(numericalBytes)
+				floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
+				if strings.Contains(stringLiteral, ".") {
+					fmt.Printf("NUMBER %v %.1v\n", floatingLiteral, strconv.FormatFloat(floatingLiteral, 'f', -1, 64))
 				} else {
-					fmt.Printf("NUMBER %v %v\n", strconv.FormatFloat(floatingLiteral, 'f', -1, 64), strconv.FormatFloat(floatingLiteral, 'f', -1, 64))
+					fmt.Printf("NUMBER %v %.2f\n", floatingLiteral, floatingLiteral)
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))

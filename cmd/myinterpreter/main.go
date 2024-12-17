@@ -132,7 +132,7 @@ func main() {
 				stringLiteral := string(numericalBytes)
 				floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
 				if strings.Contains(stringLiteral, ".") {
-					fmt.Printf("NUMBER %v %v\n", stringLiteral, floatingLiteral)
+					fmt.Printf("NUMBER %v %f\n", stringLiteral, floatingLiteral)
 				} else {
 					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
 				}

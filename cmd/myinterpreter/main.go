@@ -134,7 +134,7 @@ func main() {
 				if strings.Contains(stringLiteral, ".") {
 					fmt.Printf("NUMBER %v %.1v\n", floatingLiteral, strconv.FormatFloat(floatingLiteral, 'f', -1, 64))
 				} else {
-					fmt.Printf("NUMBER %v %.2f\n", floatingLiteral, floatingLiteral)
+					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
 				}
 			} else {
 				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))

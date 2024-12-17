@@ -100,8 +100,11 @@ func main() {
 			continue
 		case '\t':
 			continue
+<<<<<<< HEAD
 		case '\r':
 			continue
+=======
+>>>>>>> 78c2a22d28a5eaef10318b2fb6427d4dec155489
 		case ' ':
 			continue
 		case '"':
@@ -120,6 +123,7 @@ func main() {
 				}
 			}
 		default:
+<<<<<<< HEAD
 			if isNumerical(fileContents[idx]) {
 				var numericalBytes []byte
 
@@ -139,6 +143,10 @@ func main() {
 				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))
 				exitCode = 65
 			}
+=======
+			fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))
+			exitCode = 65
+>>>>>>> 78c2a22d28a5eaef10318b2fb6427d4dec155489
 		}
 	}
 

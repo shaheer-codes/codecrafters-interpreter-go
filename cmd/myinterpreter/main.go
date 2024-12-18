@@ -5,13 +5,53 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"unicode"
 )
 
+type TokenType string
+
+type Token struct {
+	Name   string
+	Lexeme TokenType
+	Value  string
+}
+
+type Lexer struct {
+	Input string
+	Pos   int
+}
+
+const (
+	LEFT_PAREN    TokenType = "("
+	RIGHT_PAREN   TokenType = ")"
+	LEFT_BRACE    TokenType = "{"
+	RIGHT_BRACE   TokenType = "}"
+	COMMA         TokenType = ","
+	DOT           TokenType = "."
+	MINUS         TokenType = "-"
+	PLUS          TokenType = "+"
+	SEMICOLON     TokenType = ";"
+	STAR          TokenType = "*"
+	EQUAL         TokenType = "="
+	EQUAL_EQUAL   TokenType = "=="
+	BANG          TokenType = "!"
+	BANG_EQUAL    TokenType = "!="
+	LESS          TokenType = "<"
+	LESS_EQUAL    TokenType = "<="
+	GREATER       TokenType = ">"
+	GREATER_EQUAL TokenType = ">="
+	SLASH         TokenType = "/"
+	EOF           TokenType = " "
+)
+
+var line = 1
+var errorCode = 0
+
 func main() {
-	fmt.Fprintln(os.Stderr, "Logs from your program will appear here!")
+	fmt.Fprintln(os.Stderr, "Logs from the program will appear here!")
 
 	if len(os.Args) < 3 {
-		fmt.Fprintln(os.Stderr, "Usage: ./your_program.sh tokenize <filename>")
+		fmt.Fprintln(os.Stderr, "Usage: ./interpreter.sh tokenize <filename>")
 		os.Exit(1)
 	}
 
@@ -31,128 +71,170 @@ func main() {
 	}
 
 	fileContents := string(rawFileContents)
-	contentsLength := len(fileContents)
-	exitCode := 0
-	line := 1
 
-	for idx := 0; idx < contentsLength; idx++ {
+	lexer := NewLexer(fileContents)
 
-		switch fileContents[idx] {
-		case '(':
-			fmt.Println("LEFT_PAREN ( null")
-		case ')':
-			fmt.Println("RIGHT_PAREN ) null")
-		case '{':
-			fmt.Println("LEFT_BRACE { null")
-		case '}':
-			fmt.Println("RIGHT_BRACE } null")
-		case ',':
-			fmt.Println("COMMA , null")
-		case '.':
-			fmt.Println("DOT . null")
-		case '-':
-			fmt.Println("MINUS - null")
-		case '+':
-			fmt.Println("PLUS + null")
-		case ';':
-			fmt.Println("SEMICOLON ; null")
-		case '*':
-			fmt.Println("STAR * null")
-		case '=':
-			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
-				fmt.Println("EQUAL_EQUAL == null")
-				idx++
-			} else {
-				fmt.Println("EQUAL = null")
-			}
-		case '!':
-			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
-				fmt.Println("BANG_EQUAL != null")
-				idx++
-			} else {
-				fmt.Println("BANG ! null")
-			}
-		case '<':
-			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
-				fmt.Println("LESS_EQUAL <= null")
-				idx++
-			} else {
-				fmt.Println("LESS < null")
-			}
-		case '>':
-			if idx+1 < contentsLength && fileContents[idx+1] == '=' {
-				fmt.Println("GREATER_EQUAL >= null")
-				idx++
-			} else {
-				fmt.Println("GREATER > null")
-			}
-		case '/':
-			if idx+1 < contentsLength && fileContents[idx+1] == '/' {
-				for idx < contentsLength && fileContents[idx] != '\n' {
-					idx++
-				}
-				line++
-			} else {
-				fmt.Println("SLASH / null")
-			}
-		case '\n':
-			line++
-			continue
-		case '\t':
-			continue
-		case '\r':
-			continue
-		case ' ':
-			continue
-		case '"':
-			var bytes []byte
-			for idx < contentsLength {
-				idx++
-				if idx == contentsLength {
-					fmt.Fprintf(os.Stderr, "[line %v] Error: Unterminated string.", line)
-					exitCode = 65
-				} else if fileContents[idx] == '"' {
-					str := string(bytes)
-					fmt.Printf("STRING \"%v\" %v\n", str, str)
-					break
-				} else {
-					bytes = append(bytes, fileContents[idx])
-				}
-			}
-		default:
-			if isNumerical(fileContents[idx]) {
-				var numericalBytes []byte
-
-				for idx+1 < contentsLength && isNumerical(fileContents[idx+1]) {
-					numericalBytes = append(numericalBytes, fileContents[idx])
-					idx++
-				}
-
-				numericalBytes = append(numericalBytes, fileContents[idx])
-				stringLiteral := string(numericalBytes)
-				floatingLiteral, _ := strconv.ParseFloat(stringLiteral, 64)
-				if strings.Contains(stringLiteral, ".") {
-					zeroTrimed := strconv.FormatFloat(floatingLiteral, 'f', -1, 64)
-					integerLiteral, _ := strconv.Atoi(strings.Split(stringLiteral, ".")[0])
-					if zeroTrimed == strconv.Itoa(integerLiteral) {
-						fmt.Printf("NUMBER %v %.1f\n", stringLiteral, floatingLiteral)
-					} else {
-						fmt.Printf("NUMBER %v %s\n", zeroTrimed, zeroTrimed)
-					}
-				} else {
-					fmt.Printf("NUMBER %v %.1f\n", floatingLiteral, floatingLiteral)
-				}
-			} else {
-				fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(fileContents[idx]))
-				exitCode = 65
-			}
+	for {
+		token := lexer.nextToken()
+		fmt.Printf("%v %v %v\n", token.Name, token.Lexeme, token.Value)
+		if token.Name == "EOF" {
+			break
 		}
 	}
 
-	fmt.Println("EOF  null")
-	os.Exit(exitCode)
+	os.Exit(errorCode)
 }
 
-func isNumerical(b byte) bool {
-	return b >= 48 && b <= 57 || b == '.'
+func NewToken(name string, lexeme TokenType, value string) Token {
+	return Token{Name: name, Lexeme: lexeme, Value: value}
+}
+
+func NewLexer(input string) *Lexer {
+	return &Lexer{Input: input, Pos: 0}
+}
+
+func (lexer *Lexer) peek() byte {
+	if lexer.Pos >= len(lexer.Input) {
+		return 0
+	}
+
+	return lexer.Input[lexer.Pos]
+}
+
+func (lexer *Lexer) readByte() byte {
+	if lexer.Pos >= len(lexer.Input) {
+		return 0
+	}
+
+	ch := lexer.Input[lexer.Pos]
+	lexer.Pos++
+
+	return ch
+}
+
+func (lexer *Lexer) peekNext() byte {
+	if lexer.Pos+1 >= len(lexer.Input) {
+		return 0
+	}
+
+	return lexer.Input[lexer.Pos+1]
+}
+
+func (lexer *Lexer) atTheEnd() bool {
+	return lexer.Pos == len(lexer.Input)
+}
+
+func (lexer *Lexer) skipWhitespaces() {
+	for lexer.peek() == '\n' || lexer.peek() == '\t' || lexer.peek() == ' ' || lexer.peek() == '\r' {
+		if lexer.peek() == '\n' {
+			line++
+		}
+		lexer.readByte()
+	}
+}
+
+func (lexer *Lexer) nextToken() Token {
+	var token Token
+
+	lexer.skipWhitespaces()
+
+	switch lexer.peek() {
+	case '(':
+		token = NewToken("LEFT_PAREN", LEFT_PAREN, "null")
+	case ')':
+		token = NewToken("RIGHT_PAREN", RIGHT_PAREN, "null")
+	case '{':
+		token = NewToken("LEFT_BRACE", LEFT_BRACE, "null")
+	case '}':
+		token = NewToken("RIGHT_PAREN", RIGHT_BRACE, "null")
+	case ',':
+		token = NewToken("COMMA", COMMA, "null")
+	case '.':
+		token = NewToken("DOT", DOT, "null")
+	case '-':
+		token = NewToken("MINUS", MINUS, "null")
+	case '+':
+		token = NewToken("PLUS", PLUS, "null")
+	case ';':
+		token = NewToken("SEMICOLON", SEMICOLON, "null")
+	case '*':
+		token = NewToken("STAR", STAR, "null")
+	case '=':
+		if lexer.peekNext() == '=' {
+			token = NewToken("EQUAL_EQUAL", EQUAL_EQUAL, "null")
+			lexer.readByte()
+		} else {
+			token = NewToken("EQUAL", EQUAL, "null")
+		}
+	case '!':
+		if lexer.peekNext() == '=' {
+			token = NewToken("BANG_EQUAL", BANG_EQUAL, "null")
+			lexer.readByte()
+		} else {
+			token = NewToken("BANG", BANG, "null")
+		}
+	case '<':
+		if lexer.peekNext() == '=' {
+			token = NewToken("LESS_EQUAL", LESS_EQUAL, "null")
+			lexer.readByte()
+		} else {
+			token = NewToken("LESS", LESS, "null")
+		}
+	case '>':
+		if lexer.peekNext() == '=' {
+			token = NewToken("GREATER_EQUAL", GREATER_EQUAL, "null")
+			lexer.readByte()
+		} else {
+			token = NewToken("GREATER", GREATER, "null")
+		}
+	case '/':
+		if lexer.peekNext() == '/' {
+			for lexer.peek() != '\n' && !lexer.atTheEnd() {
+				lexer.readByte()
+			}
+
+			return lexer.nextToken()
+		} else {
+			token = NewToken("SLASH", SLASH, "null")
+		}
+	case '"':
+		start := lexer.Pos + 1
+		lexer.readByte()
+		for lexer.peek() != '"' && !lexer.atTheEnd() {
+			lexer.readByte()
+		}
+		if lexer.atTheEnd() {
+			fmt.Fprintf(os.Stderr, "[line %v] Error: Unterminated string.\n", line)
+			errorCode = 65
+			return lexer.nextToken()
+		} else {
+			stringValue := lexer.Input[start:lexer.Pos]
+			token = NewToken("STRING", TokenType(fmt.Sprintf("\"%v\"", stringValue)), stringValue)
+		}
+	case 0:
+		token = NewToken("EOF", EOF, "null")
+	default:
+		if unicode.IsDigit(rune(lexer.peek())) {
+			start := lexer.Pos
+			for unicode.IsDigit(rune(lexer.peek())) || lexer.peek() == '.' {
+				lexer.readByte()
+			}
+			stringRepr := lexer.Input[start:lexer.Pos]
+			numericalRepr, _ := strconv.ParseFloat(stringRepr, 64)
+			if strings.Contains(stringRepr, ".") {
+				trimedFloat := fmt.Sprintf("%v", strconv.FormatFloat(numericalRepr, 'f', -1, 64))
+				token = NewToken("NUMBER", TokenType(trimedFloat), trimedFloat)
+			} else {
+				token = NewToken("NUMBER", TokenType(stringRepr), fmt.Sprintf("%.1f", numericalRepr))
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(lexer.peek()))
+			errorCode = 65
+			lexer.readByte()
+			return lexer.nextToken()
+		}
+	}
+
+	lexer.readByte()
+	return token
 }

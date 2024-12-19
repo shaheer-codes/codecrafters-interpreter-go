@@ -18,6 +18,12 @@ type Unary struct {
 	Expr     string
 }
 
+type Binary struct {
+	Left     string
+	Operator string
+	Right    string
+}
+
 type Statement interface {
 	toString() string
 }
@@ -32,6 +38,10 @@ func (group Group) toString() string {
 
 func (unary Unary) toString() string {
 	return fmt.Sprintf("(%v %v)", unary.Operator, unary.Expr)
+}
+
+func (binary Binary) toString() string {
+	return fmt.Sprintf("(%v %v %v)", binary.Operator, binary.Left, binary.Right)
 }
 
 type Parser struct {
@@ -59,16 +69,14 @@ func (parser *Parser) previous() Token {
 	return parser.Tokens[parser.Current-1]
 }
 
-func (parser *Parser) peekNext() Token {
-	return parser.Tokens[parser.Current+1]
-}
-
 func (parser *Parser) parse() Statement {
 	switch parser.peek().Lexeme {
 	case "(":
 		return parser.parse_group()
 	case "-", "!":
 		return parser.parse_unary()
+	case "*", "/":
+		return parser.parse_binary()
 	default:
 		return parser.parse_literal()
 	}
@@ -133,4 +141,12 @@ func (parser *Parser) parse_unary() Unary {
 	default:
 		return Unary{}
 	}
+}
+
+func (parser *Parser) parse_binary() Binary {
+	lexeme := parser.peek().Lexeme
+	parser.Current--
+	left := parser.parse().toString()
+	parser.advance()
+	return Binary{left, string(lexeme), parser.parse().toString()}
 }

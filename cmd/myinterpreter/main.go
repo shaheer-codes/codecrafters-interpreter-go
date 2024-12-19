@@ -269,7 +269,7 @@ func (lexer *Lexer) nextToken() Token {
 			if !strings.Contains(number, ".") || !strings.Contains(fmt.Sprintf("%v", floatNumber), ".") {
 				return NewToken("NUMBER", TokenType(number), fmt.Sprintf("%.1f", floatNumber))
 			} else {
-				return NewToken("NUMBER", TokenType(number), number)
+				return NewToken("NUMBER", TokenType(number), strconv.FormatFloat(floatNumber, 'f', -1, 64))
 			}
 		} else if unicode.IsLetter(rune(lexer.peek())) || lexer.peek() == '_' {
 			start := lexer.Pos

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 type Statement interface {
@@ -143,7 +144,10 @@ func (p *Parser) parsePrimary() Statement {
 		return Group{Expr: expr}
 	}
 
-	panic(fmt.Sprintf("Unexpected token: %v", p.peek()))
+	fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek())
+	errorCode = 65
+
+	return nil
 }
 
 func (p *Parser) match(types ...string) bool {

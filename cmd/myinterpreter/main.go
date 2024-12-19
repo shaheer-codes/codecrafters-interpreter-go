@@ -146,7 +146,7 @@ func (lexer *Lexer) nextToken() Token {
 	case '{':
 		token = NewToken("LEFT_BRACE", LEFT_BRACE, "null")
 	case '}':
-		token = NewToken("RIGHT_PAREN", RIGHT_BRACE, "null")
+		token = NewToken("RIGHT_BRACE", RIGHT_BRACE, "null")
 	case ',':
 		token = NewToken("COMMA", COMMA, "null")
 	case '.':

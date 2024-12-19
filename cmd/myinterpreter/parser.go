@@ -167,7 +167,7 @@ func (p *Parser) parsePrimary() (Statement, error) {
 		return Group{Expr: expr}, fmt.Errorf("[line %v] Error at %v: Expected expression", line, p.peek())
 	}
 
-	panic(fmt.Sprintf("Unexpected token: %v", p.peek()))
+	return Literal{}, fmt.Errorf("[line %v] Error at %v: Expected expression", line, p.peek())
 }
 
 func (p *Parser) match(types ...string) bool {

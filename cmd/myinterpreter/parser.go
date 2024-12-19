@@ -74,6 +74,32 @@ func (parser *Parser) previous() Token {
 }
 
 func (parser *Parser) parse() (Statement, error) {
+	return parser.parseExpression()
+}
+
+func (parser *Parser) parseExpression() (Statement, error) {
+	return parser.parseTerm()
+}
+
+func (parser *Parser) parseTerm() (Statement, error) {
+	expr, err := parser.parseFactor()
+	if err != nil {
+		return nil, err
+	}
+
+	for parser.peek().Kind == "*" || parser.peek().Kind == "/" {
+		token := parser.advance()
+		right, err := parser.parseFactor()
+		if err != nil {
+			return nil, err
+		}
+		expr = Binary{Left: expr, Operator: string(token.Lexeme), Right: right}
+	}
+
+	return expr, nil
+}
+
+func (parser *Parser) parseFactor() (Statement, error) {
 	switch parser.peek().Kind {
 	case "(":
 		return parser.parseGroup()
@@ -81,14 +107,6 @@ func (parser *Parser) parse() (Statement, error) {
 		return parser.parseUnary()
 	case "NUMBER", "STRING", "TRUE", "FALSE", "NIL":
 		return parser.parseLiteral(), nil
-	case "*", "/":
-		parser.Current--
-		left, err := parser.parse()
-		fmt.Println("LEFT", left)
-		if err != nil {
-			return Binary{}, err
-		}
-		return parser.parseBinary(left)
 	default:
 		return nil, fmt.Errorf("unexpected token: %v", parser.peek())
 	}
@@ -102,7 +120,7 @@ func (parser *Parser) parseLiteral() Literal {
 func (parser *Parser) parseGroup() (Group, error) {
 	parser.advance() // Consume '('
 
-	expr, err := parser.parse()
+	expr, err := parser.parseExpression()
 	if err != nil {
 		return Group{}, err
 	}
@@ -118,7 +136,7 @@ func (parser *Parser) parseGroup() (Group, error) {
 func (parser *Parser) parseUnary() (Unary, error) {
 	token := parser.advance()
 
-	expr, err := parser.parse()
+	expr, err := parser.parseFactor()
 	if err != nil {
 		return Unary{}, err
 	}
@@ -128,7 +146,7 @@ func (parser *Parser) parseUnary() (Unary, error) {
 
 func (parser *Parser) parseBinary(left Statement) (Binary, error) {
 	operator := parser.advance().Lexeme
-	right, err := parser.parse()
+	right, err := parser.parseFactor()
 	if err != nil {
 		return Binary{}, err
 	}

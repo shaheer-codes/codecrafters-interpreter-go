@@ -92,11 +92,6 @@ func main() {
 
 	command := os.Args[1]
 
-	if command != "tokenize" {
-		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
-		os.Exit(1)
-	}
-
 	switch command {
 	case "tokenize":
 		filename := os.Args[2]
@@ -152,6 +147,9 @@ func main() {
 			}
 			parser.advance()
 		}
+	default:
+		fmt.Fprintf(os.Stderr, "Unknown command: %s\n", command)
+		os.Exit(1)
 	}
 
 	os.Exit(errorCode)

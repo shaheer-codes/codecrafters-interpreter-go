@@ -100,9 +100,11 @@ func (parser *Parser) parse_group() Group {
 		var expr []string
 		for parser.peek().Lexeme != ")" && parser.peek().Kind != "EOF" {
 			if parser.peek().Lexeme == "(" {
-				expr = append(expr, parser.parse_group().Expr)
+				expr = append(expr, parser.parse_group().toString())
+			} else if parser.peek().Lexeme == "-" || parser.peek().Lexeme == "!" {
+				expr = append(expr, parser.parse_unary().toString())
 			}
-			expr = append(expr, string(parser.parse_literal().Value))
+			expr = append(expr, string(parser.parse_literal().toString()))
 			parser.advance()
 		}
 		return Group{strings.Join(expr, "")}

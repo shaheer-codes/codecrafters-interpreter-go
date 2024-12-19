@@ -1,3 +1,2 @@
-message = "Hello, World"
-number = 34.34
-number = 200.00
+var name = "Ayesha"
+print "Hello, " + name

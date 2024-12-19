@@ -217,7 +217,7 @@ func (lexer *Lexer) nextToken() Token {
 	default:
 		if unicode.IsDigit(rune(lexer.peek())) {
 			start := lexer.Pos
-			for unicode.IsDigit(rune(lexer.peek())) {
+			for unicode.IsDigit(rune(lexer.peekNext())) {
 				lexer.readByte()
 			}
 

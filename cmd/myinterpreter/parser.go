@@ -139,7 +139,8 @@ func (p *Parser) parsePrimary() Statement {
 	if p.match("LEFT_PAREN") {
 		expr := p.parseExpression()
 		if !p.match("RIGHT_PAREN") {
-			panic("Expected closing ')' after expression")
+			fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek().Lexeme)
+			errorCode = 65
 		}
 		return Group{Expr: expr}
 	}

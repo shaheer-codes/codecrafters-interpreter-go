@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -228,8 +229,12 @@ func (lexer *Lexer) nextToken() Token {
 			}
 
 			number := lexer.Input[start : lexer.Pos+1]
+
 			floatNumber, _ := strconv.ParseFloat(number, 64)
-			number = strconv.FormatFloat(floatNumber, 'f', -1, 64)
+
+			if floatNumber != math.Trunc(floatNumber) {
+				number = strconv.FormatFloat(floatNumber, 'f', -1, 64)
+			}
 
 			if !strings.Contains(number, ".") {
 				token = NewToken("NUMBER", TokenType(number), fmt.Sprintf("%v.0", number))

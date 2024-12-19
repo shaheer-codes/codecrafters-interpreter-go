@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -40,7 +39,7 @@ func (parser *Parser) advance() Token {
 	if !parser.atTheEnd() {
 		parser.Current++
 	}
-	token, _ := parser.previous()
+	token := parser.previous()
 	return token
 }
 
@@ -48,11 +47,8 @@ func (parser *Parser) atTheEnd() bool {
 	return parser.Current+1 == len(parser.Tokens)
 }
 
-func (parser *Parser) previous() (Token, error) {
-	if parser.Current == 0 {
-		return NewToken("", "", ""), errors.New("no previous token is available")
-	}
-	return parser.Tokens[parser.Current-1], nil
+func (parser *Parser) previous() Token {
+	return parser.Tokens[parser.Current-1]
 }
 
 func (parser *Parser) peekNext() Token {
@@ -93,7 +89,7 @@ func (parser *Parser) parse_group() Group {
 		parser.advance()
 		var expr []string
 		for parser.peekNext().Lexeme != ")" && parser.peek().Kind != "EOF" {
-			expr = append(expr, string(parser.peek().Lexeme))
+			expr = append(expr, string(parser.previous().Lexeme))
 			parser.advance()
 		}
 		return Group{fmt.Sprintf("(group %v)", strings.Join(expr, " "))}

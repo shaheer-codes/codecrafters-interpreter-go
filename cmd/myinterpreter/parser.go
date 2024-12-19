@@ -141,6 +141,7 @@ func (p *Parser) parsePrimary() Statement {
 		if !p.match("RIGHT_PAREN") {
 			fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek().Lexeme)
 			errorCode = 65
+			return Group{}
 		}
 		return Group{Expr: expr}
 	}

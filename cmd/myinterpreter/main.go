@@ -11,7 +11,7 @@ import (
 type TokenType string
 
 type Token struct {
-	Name   string
+	Kind   string
 	Lexeme TokenType
 	Value  string
 }
@@ -97,23 +97,60 @@ func main() {
 		os.Exit(1)
 	}
 
-	filename := os.Args[2]
-	rawFileContents, err := os.ReadFile(filename)
+	switch command {
+	case "tokenize":
+		filename := os.Args[2]
+		rawFileContents, err := os.ReadFile(filename)
 
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-		os.Exit(1)
-	}
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+			os.Exit(1)
+		}
 
-	fileContents := string(rawFileContents)
+		fileContents := string(rawFileContents)
 
-	lexer := NewLexer(fileContents)
+		lexer := NewLexer(fileContents)
 
-	for {
-		token := lexer.nextToken()
-		fmt.Printf("%v %v %v\n", token.Name, token.Lexeme, token.Value)
-		if token.Name == "EOF" {
-			break
+		for {
+			token := lexer.nextToken()
+			fmt.Printf("%v %v %v\n", token.Kind, token.Lexeme, token.Value)
+			if token.Kind == "EOF" {
+				break
+			}
+		}
+	case "parse":
+		filename := os.Args[2]
+		rawFileContents, err := os.ReadFile(filename)
+
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+			os.Exit(1)
+		}
+
+		fileContents := string(rawFileContents)
+
+		lexer := NewLexer(fileContents)
+
+		var tokens []Token
+
+		for {
+			token := lexer.nextToken()
+
+			tokens = append(tokens, token)
+
+			if token.Kind == "EOF" {
+				break
+			}
+		}
+
+		parser := Parser{tokens, 0}
+
+		for {
+			parser.parse()
+			if parser.peek().Kind == "EOF" {
+				break
+			}
+			parser.advance()
 		}
 	}
 
@@ -121,7 +158,7 @@ func main() {
 }
 
 func NewToken(name string, lexeme TokenType, value string) Token {
-	return Token{Name: name, Lexeme: lexeme, Value: value}
+	return Token{Kind: name, Lexeme: lexeme, Value: value}
 }
 
 func NewLexer(input string) *Lexer {

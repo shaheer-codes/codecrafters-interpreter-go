@@ -81,6 +81,13 @@ func (parser *Parser) parse() (Statement, error) {
 		return parser.parseUnary()
 	case "NUMBER", "STRING", "TRUE", "FALSE", "NIL":
 		return parser.parseLiteral(), nil
+	case "*", "/":
+		parser.Current--
+		left, err := parser.parse()
+		if err != nil {
+			return Binary{}, err
+		}
+		return parser.parseBinary(left)
 	default:
 		return nil, fmt.Errorf("unexpected token: %v", parser.peek())
 	}

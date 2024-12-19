@@ -222,12 +222,12 @@ func (lexer *Lexer) nextToken() Token {
 
 			if lexer.peek() == '.' && unicode.IsDigit(rune(lexer.peekNext())) {
 				lexer.readByte()
-				for unicode.IsDigit(rune(lexer.peek())) {
+				for unicode.IsDigit(rune(lexer.peekNext())) {
 					lexer.readByte()
 				}
 			}
 
-			number := lexer.Input[start:lexer.Pos]
+			number := lexer.Input[start : lexer.Pos+1]
 			floatNumber, _ := strconv.ParseFloat(number, 64)
 			number = strconv.FormatFloat(floatNumber, 'f', -1, 64)
 

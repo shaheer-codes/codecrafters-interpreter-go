@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"strings"
 )
 
 type Literal struct {
@@ -10,18 +9,18 @@ type Literal struct {
 }
 
 type Group struct {
-	Expr string
+	Expr Statement
 }
 
 type Unary struct {
 	Operator string
-	Expr     string
+	Expr     Statement
 }
 
 type Binary struct {
-	Left     string
+	Left     Statement
 	Operator string
-	Right    string
+	Right    Statement
 }
 
 type Statement interface {
@@ -33,15 +32,15 @@ func (literal Literal) toString() string {
 }
 
 func (group Group) toString() string {
-	return fmt.Sprintf("(group %v)", group.Expr)
+	return fmt.Sprintf("(group %s)", group.Expr.toString())
 }
 
 func (unary Unary) toString() string {
-	return fmt.Sprintf("(%v %v)", unary.Operator, unary.Expr)
+	return fmt.Sprintf("(%s %s)", unary.Operator, unary.Expr.toString())
 }
 
 func (binary Binary) toString() string {
-	return fmt.Sprintf("(%v %v %v)", binary.Operator, binary.Left, binary.Right)
+	return fmt.Sprintf("(%s %s %s)", binary.Left.toString(), binary.Operator, binary.Right.toString())
 }
 
 type Parser struct {
@@ -50,104 +49,81 @@ type Parser struct {
 }
 
 func (parser *Parser) peek() Token {
-	return parser.Tokens[parser.Current]
+	if parser.Current < len(parser.Tokens) {
+		return parser.Tokens[parser.Current]
+	}
+	return Token{Kind: "EOF"}
 }
 
 func (parser *Parser) advance() Token {
 	if !parser.atTheEnd() {
 		parser.Current++
 	}
-	token := parser.previous()
-	return token
+	return parser.previous()
 }
 
 func (parser *Parser) atTheEnd() bool {
-	return parser.Current+1 == len(parser.Tokens)
+	return parser.Current >= len(parser.Tokens)
 }
 
 func (parser *Parser) previous() Token {
-	return parser.Tokens[parser.Current-1]
-}
-
-func (parser *Parser) parse() Statement {
-	switch parser.peek().Lexeme {
-	case "(":
-		return parser.parse_group()
-	case "-", "!":
-		return parser.parse_unary()
-	case "*", "/":
-		return parser.parse_binary()
-	default:
-		return parser.parse_literal()
+	if parser.Current > 0 {
+		return parser.Tokens[parser.Current-1]
 	}
+	return Token{Kind: "EOF"}
 }
 
-func (parser *Parser) parse_literal() Literal {
+func (parser *Parser) parse() (Statement, error) {
 	switch parser.peek().Kind {
-	case "TRUE":
-		expr := Literal{"true"}
-		return expr
-	case "FALSE":
-		expr := Literal{"false"}
-		return expr
-	case "NIL":
-		return Literal{"nil"}
-	case "NUMBER":
-		return Literal{parser.peek().Value}
-	case "STRING":
-		return Literal{parser.peek().Value}
-	default:
-		return Literal{}
-	}
-}
-
-func (parser *Parser) parse_group() Group {
-	switch parser.peek().Lexeme {
 	case "(":
-		parser.advance()
-		var expr []string
-		for parser.peek().Lexeme != ")" && parser.peek().Kind != "EOF" {
-			if parser.peek().Lexeme == "(" {
-				expr = append(expr, parser.parse_group().toString())
-			} else if parser.peek().Lexeme == "-" || parser.peek().Lexeme == "!" {
-				expr = append(expr, parser.parse_unary().toString())
-			}
-			expr = append(expr, string(parser.parse_literal().toString()))
-			parser.advance()
-		}
-		return Group{strings.Join(expr, "")}
-	default:
-		return Group{}
-	}
-}
-
-func (parser *Parser) parse_unary() Unary {
-	lexeme := parser.peek().Lexeme
-	switch lexeme {
+		return parser.parseGroup()
 	case "-", "!":
-		parser.advance()
-		nextToken := parser.peek()
-		if nextToken.Value == "null" {
-			if nextToken.Lexeme == "(" {
-				return Unary{string(lexeme), parser.parse_group().toString()}
-			} else if nextToken.Lexeme == "-" || nextToken.Lexeme == "!" {
-				return Unary{string(lexeme), parser.parse_unary().toString()}
-			} else {
-				return Unary{string(lexeme), parser.parse_literal().toString()}
-			}
-		} else {
-			return Unary{string(lexeme), nextToken.Value}
-		}
+		return parser.parseUnary()
+	case "NUMBER", "STRING", "TRUE", "FALSE", "NIL":
+		return parser.parseLiteral(), nil
 	default:
-		return Unary{}
+		return nil, fmt.Errorf("unexpected token: %v", parser.peek())
 	}
 }
 
-func (parser *Parser) parse_binary() Binary {
-	lexeme := parser.peek().Lexeme
-	parser.Current--
-	left := parser.parse().toString()
-	parser.Current++
-	parser.advance()
-	return Binary{left, string(lexeme), parser.parse().toString()}
+func (parser *Parser) parseLiteral() Literal {
+	token := parser.advance()
+	return Literal{Value: token.Value}
+}
+
+func (parser *Parser) parseGroup() (Group, error) {
+	parser.advance() // Consume '('
+
+	expr, err := parser.parse()
+	if err != nil {
+		return Group{}, err
+	}
+
+	if parser.peek().Kind != ")" {
+		return Group{}, fmt.Errorf("expected ')' but got %v", parser.peek())
+	}
+	parser.advance() // Consume ')'
+
+	return Group{Expr: expr}, nil
+}
+
+func (parser *Parser) parseUnary() (Unary, error) {
+	token := parser.advance()
+
+	expr, err := parser.parse()
+	if err != nil {
+		return Unary{}, err
+	}
+
+	return Unary{Operator: string(token.Lexeme), Expr: expr}, nil
+}
+
+func (parser *Parser) parseBinary(left Statement) (Binary, error) {
+	operator := parser.advance().Lexeme
+	right, err := parser.parse()
+	if err != nil {
+		return Binary{}, err
+	}
+
+	return Binary{Left: left, Operator: string(operator), Right: right}, nil
 }

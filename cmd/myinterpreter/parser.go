@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 )
 
@@ -163,9 +162,9 @@ func (p *Parser) parsePrimary() (Statement, error) {
 			return Group{}, err
 		}
 		if !p.match("RIGHT_PAREN") {
-			return Group{}, errors.New(fmt.Sprintf("[line %v] Error: Expected ).", line))
+			return Group{}, fmt.Errorf("[line %v] Error: Expected )", line)
 		}
-		return Group{Expr: expr}, errors.New(fmt.Sprintf("[line %v] Error at %v: Expected expression.", line, p.peek()))
+		return Group{Expr: expr}, fmt.Errorf("[line %v] Error at %v: Expected expression", line, p.peek())
 	}
 
 	panic(fmt.Sprintf("Unexpected token: %v", p.peek()))

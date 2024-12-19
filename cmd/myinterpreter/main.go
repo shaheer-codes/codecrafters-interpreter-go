@@ -141,8 +141,8 @@ func main() {
 		parser := Parser{tokens, 0}
 
 		for {
-			expr := parser.parse()
-			fmt.Println(expr.Value)
+			stmt := parser.parse()
+			stmt.toString()
 			if parser.peek().Kind == "EOF" {
 				break
 			}

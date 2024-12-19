@@ -1,6 +1,10 @@
 package main
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"strings"
+)
 
 type Parser struct {
 	Tokens  []Token
@@ -10,6 +14,22 @@ type Parser struct {
 type Literal struct {
 	Kind  TokenType
 	Value string
+}
+
+type Group struct {
+	Expr string
+}
+
+type Statement interface {
+	toString()
+}
+
+func (lit Literal) toString() {
+	fmt.Println(lit.Value)
+}
+
+func (group Group) toString() {
+	fmt.Println(group.Expr)
 }
 
 func (parser *Parser) peek() Token {
@@ -35,15 +55,20 @@ func (parser *Parser) previous() (Token, error) {
 	return parser.Tokens[parser.Current-1], nil
 }
 
-func (parser *Parser) peekNext() (Token, error) {
-	if !parser.atTheEnd() {
-		return parser.Tokens[parser.Current+1], nil
-	}
-
-	return NewToken("", "", ""), errors.New("no next token is available")
+func (parser *Parser) peekNext() Token {
+	return parser.Tokens[parser.Current+1]
 }
 
-func (parser *Parser) parse() Literal {
+func (parser *Parser) parse() Statement {
+	switch parser.peek().Kind {
+	case "LEFT_PAREN":
+		return parser.parse_group()
+	default:
+		return parser.parse_literal()
+	}
+}
+
+func (parser *Parser) parse_literal() Literal {
 	switch parser.peek().Kind {
 	case "TRUE":
 		expr := Literal{TRUE, "true"}
@@ -59,5 +84,20 @@ func (parser *Parser) parse() Literal {
 		return Literal{"STRING", parser.peek().Value}
 	default:
 		return Literal{}
+	}
+}
+
+func (parser *Parser) parse_group() Group {
+	switch parser.peek().Lexeme {
+	case "(":
+		parser.advance()
+		var expr []string
+		for parser.peekNext().Lexeme != ")" && parser.peek().Kind != "EOF" {
+			expr = append(expr, string(parser.peek().Lexeme))
+			parser.advance()
+		}
+		return Group{fmt.Sprintf("(%v)", strings.Join(expr, " "))}
+	default:
+		return Group{}
 	}
 }

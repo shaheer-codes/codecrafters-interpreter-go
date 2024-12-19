@@ -231,7 +231,7 @@ func (lexer *Lexer) nextToken() Token {
 
 			floatNumber, _ := strconv.ParseFloat(number, 64)
 
-			if !strings.Contains(number, ".") || !strings.Contains(fmt.Sprintf("%f", floatNumber), ".") {
+			if !strings.Contains(number, ".") || !strings.Contains(fmt.Sprintf("%v", floatNumber), ".") {
 				return NewToken("NUMBER", TokenType(number), fmt.Sprintf("%.1f", floatNumber))
 			} else {
 				return NewToken("NUMBER", TokenType(number), number)

@@ -243,7 +243,7 @@ func (lexer *Lexer) nextToken() Token {
 			}
 
 			identifier := lexer.Input[start:lexer.Pos]
-			token = NewToken("IDENTIFIER", TokenType(identifier), "null")
+			return NewToken("IDENTIFIER", TokenType(identifier), "null")
 		} else {
 			fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(lexer.peek()))
 			errorCode = 65

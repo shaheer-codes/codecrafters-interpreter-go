@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 	"unicode"
 )
@@ -216,17 +215,32 @@ func (lexer *Lexer) nextToken() Token {
 	default:
 		if unicode.IsDigit(rune(lexer.peek())) {
 			start := lexer.Pos
-			for unicode.IsDigit(rune(lexer.peek())) || lexer.peek() == '.' {
+			for unicode.IsDigit(rune(lexer.peek())) {
 				lexer.readByte()
 			}
-			stringRepr := lexer.Input[start:lexer.Pos]
-			numericalRepr, _ := strconv.ParseFloat(stringRepr, 64)
-			if strings.Contains(stringRepr, ".") {
-				trimedFloat := fmt.Sprintf("%v", strconv.FormatFloat(numericalRepr, 'f', -1, 64))
-				token = NewToken("NUMBER", TokenType(trimedFloat), trimedFloat)
-			} else {
-				token = NewToken("NUMBER", TokenType(stringRepr), fmt.Sprintf("%.1f", numericalRepr))
+
+			if lexer.peek() == '.' && unicode.IsDigit(rune(lexer.peekNext())) {
+				lexer.readByte()
+				for unicode.IsDigit(rune(lexer.peek())) {
+					lexer.readByte()
+				}
 			}
+
+			number := lexer.Input[start:lexer.Pos]
+
+			if !strings.Contains(number, ".") {
+				token = NewToken("NUMBER", TokenType(number), fmt.Sprintf("%v.0", number))
+			} else {
+				token = NewToken("NUMBER", TokenType(number), number)
+			}
+		} else if unicode.IsLetter(rune(lexer.peek())) || lexer.peek() == '_' {
+			start := lexer.Pos
+			for unicode.IsLetter(rune(lexer.peek())) || unicode.IsDigit(rune(lexer.peek())) || lexer.peek() == '_' {
+				lexer.readByte()
+			}
+
+			identifier := lexer.Input[start:lexer.Pos]
+			token = NewToken("IDENTIFIER", TokenType(identifier), "null")
 		} else {
 			fmt.Fprintf(os.Stderr, "[line %v] Error: Unexpected character: %v\n", line, string(lexer.peek()))
 			errorCode = 65

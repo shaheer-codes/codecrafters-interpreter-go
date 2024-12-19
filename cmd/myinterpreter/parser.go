@@ -84,6 +84,7 @@ func (parser *Parser) parse() (Statement, error) {
 	case "*", "/":
 		parser.Current--
 		left, err := parser.parse()
+		fmt.Println("LEFT", left)
 		if err != nil {
 			return Binary{}, err
 		}

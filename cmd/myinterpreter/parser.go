@@ -5,11 +5,6 @@ import (
 	"strings"
 )
 
-type Parser struct {
-	Tokens  []Token
-	Current int
-}
-
 type Literal struct {
 	Kind  TokenType
 	Value string
@@ -23,12 +18,17 @@ type Statement interface {
 	toString()
 }
 
-func (lit Literal) toString() {
-	fmt.Println(lit.Value)
+func (literal Literal) toString() {
+	fmt.Println(literal.Value)
 }
 
 func (group Group) toString() {
 	fmt.Println(group.Expr)
+}
+
+type Parser struct {
+	Tokens  []Token
+	Current int
 }
 
 func (parser *Parser) peek() Token {
@@ -49,10 +49,6 @@ func (parser *Parser) atTheEnd() bool {
 
 func (parser *Parser) previous() Token {
 	return parser.Tokens[parser.Current-1]
-}
-
-func (parser *Parser) peekNext() Token {
-	return parser.Tokens[parser.Current+1]
 }
 
 func (parser *Parser) parse() Statement {

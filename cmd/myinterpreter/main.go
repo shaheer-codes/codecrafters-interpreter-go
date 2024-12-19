@@ -16,11 +16,6 @@ type Token struct {
 	Value  string
 }
 
-type Lexer struct {
-	Input string
-	Pos   int
-}
-
 const (
 	LEFT_PAREN    TokenType = "("
 	RIGHT_PAREN   TokenType = ")"
@@ -91,52 +86,16 @@ func main() {
 	}
 
 	command := os.Args[1]
+	filename := os.Args[2]
 
 	switch command {
 	case "tokenize":
-		filename := os.Args[2]
-		rawFileContents, err := os.ReadFile(filename)
-
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-			os.Exit(1)
-		}
-
-		fileContents := string(rawFileContents)
-
-		lexer := NewLexer(fileContents)
-
-		for {
-			token := lexer.nextToken()
-			fmt.Printf("%v %v %v\n", token.Kind, token.Lexeme, token.Value)
-			if token.Kind == "EOF" {
-				break
-			}
+		tokens := tokenize(filename)
+		for i := 0; i < len(tokens); i++ {
+			fmt.Printf("%v %v %v\n", tokens[i].Kind, tokens[i].Lexeme, tokens[i].Value)
 		}
 	case "parse":
-		filename := os.Args[2]
-		rawFileContents, err := os.ReadFile(filename)
-
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
-			os.Exit(1)
-		}
-
-		fileContents := string(rawFileContents)
-
-		lexer := NewLexer(fileContents)
-
-		var tokens []Token
-
-		for {
-			token := lexer.nextToken()
-
-			tokens = append(tokens, token)
-
-			if token.Kind == "EOF" {
-				break
-			}
-		}
+		tokens := tokenize(filename)
 
 		parser := Parser{tokens, 0}
 
@@ -160,8 +119,38 @@ func NewToken(name string, lexeme TokenType, value string) Token {
 	return Token{Kind: name, Lexeme: lexeme, Value: value}
 }
 
+type Lexer struct {
+	Input string
+	Pos   int
+}
+
 func NewLexer(input string) *Lexer {
 	return &Lexer{Input: input, Pos: 0}
+}
+
+func tokenize(filename string) []Token {
+	rawFileContents, err := os.ReadFile(filename)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading file: %v\n", err)
+		os.Exit(1)
+	}
+
+	fileContents := string(rawFileContents)
+
+	lexer := NewLexer(fileContents)
+
+	var tokens []Token
+
+	for {
+		token := lexer.nextToken()
+		tokens = append(tokens, token)
+		if token.Kind == "EOF" {
+			break
+		}
+	}
+
+	return tokens
 }
 
 func (lexer *Lexer) peek() byte {

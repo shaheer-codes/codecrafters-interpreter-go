@@ -89,7 +89,10 @@ func (parser *Parser) parse_group() Group {
 		parser.advance()
 		var expr []string
 		for parser.peek().Lexeme != ")" && parser.peek().Kind != "EOF" {
-			expr = append(expr, string(parser.peek().Value))
+			if parser.peek().Lexeme == "(" {
+				expr = append(expr, parser.parse_group().Expr)
+			}
+			expr = append(expr, string(parser.parse_literal().Value))
 			parser.advance()
 		}
 		return Group{fmt.Sprintf("(group %v)", strings.Join(expr, " "))}

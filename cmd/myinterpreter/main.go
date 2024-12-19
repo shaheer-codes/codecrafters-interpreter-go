@@ -40,7 +40,7 @@ const (
 	GREATER       TokenType = ">"
 	GREATER_EQUAL TokenType = ">="
 	SLASH         TokenType = "/"
-	EOF           TokenType = " "
+	EOF           TokenType = ""
 )
 
 var line = 1

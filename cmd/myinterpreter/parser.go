@@ -144,10 +144,10 @@ func (p *Parser) parsePrimary() Statement {
 		return Group{Expr: expr}
 	}
 
-	fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek())
+	fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek().Lexeme)
 	errorCode = 65
 
-	return nil
+	return Literal{}
 }
 
 func (p *Parser) match(types ...string) bool {

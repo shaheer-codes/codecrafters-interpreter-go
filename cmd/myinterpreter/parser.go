@@ -60,8 +60,8 @@ func (parser *Parser) previous() Token {
 }
 
 func (parser *Parser) parse() Statement {
-	switch parser.peek().Kind {
-	case "LEFT_PAREN":
+	switch parser.peek().Lexeme {
+	case "(":
 		return parser.parse_group()
 	case "-", "!":
 		return parser.parse_unary()

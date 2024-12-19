@@ -43,7 +43,7 @@ func (parser *Parser) peekNext() (Token, error) {
 	return NewToken("", "", ""), errors.New("no next token is available")
 }
 
-func (parser *Parser) parse() Statement {
+func (parser *Parser) parse() Literal {
 	switch parser.peek().Kind {
 	case "TRUE":
 		expr := Literal{TRUE, "true"}
@@ -57,5 +57,3 @@ func (parser *Parser) parse() Statement {
 		return nil
 	}
 }
-
-type Statement interface{}

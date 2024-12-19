@@ -95,7 +95,7 @@ func (parser *Parser) parse_group() Group {
 			expr = append(expr, string(parser.parse_literal().Value))
 			parser.advance()
 		}
-		return Group{fmt.Sprintf("(group %v)", strings.Join(expr, " "))}
+		return Group{fmt.Sprintf("(group %v)", strings.Join(expr, ""))}
 	default:
 		return Group{}
 	}

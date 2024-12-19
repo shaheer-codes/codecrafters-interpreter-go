@@ -6,12 +6,16 @@ import (
 )
 
 type Literal struct {
-	Kind  TokenType
 	Value string
 }
 
 type Group struct {
 	Expr string
+}
+
+type Unary struct {
+	Operator string
+	Expr     string
 }
 
 type Statement interface {
@@ -23,7 +27,11 @@ func (literal Literal) toString() {
 }
 
 func (group Group) toString() {
-	fmt.Println(group.Expr)
+	fmt.Printf("(group %v)\n", group.Expr)
+}
+
+func (unary Unary) toString() {
+	fmt.Printf("(%v %v)\n", unary.Operator, unary.Expr)
 }
 
 type Parser struct {
@@ -63,17 +71,17 @@ func (parser *Parser) parse() Statement {
 func (parser *Parser) parse_literal() Literal {
 	switch parser.peek().Kind {
 	case "TRUE":
-		expr := Literal{TRUE, "true"}
+		expr := Literal{"true"}
 		return expr
 	case "FALSE":
-		expr := Literal{FALSE, "false"}
+		expr := Literal{"false"}
 		return expr
 	case "NIL":
-		return Literal{NIL, "nil"}
+		return Literal{"nil"}
 	case "NUMBER":
-		return Literal{"NUMBER", parser.peek().Value}
+		return Literal{parser.peek().Value}
 	case "STRING":
-		return Literal{"STRING", parser.peek().Value}
+		return Literal{parser.peek().Value}
 	default:
 		return Literal{}
 	}
@@ -91,8 +99,17 @@ func (parser *Parser) parse_group() Group {
 			expr = append(expr, string(parser.parse_literal().Value))
 			parser.advance()
 		}
-		return Group{fmt.Sprintf("(group %v)", strings.Join(expr, ""))}
+		return Group{strings.Join(expr, "")}
 	default:
 		return Group{}
+	}
+}
+
+func (parser *Parser) parse_unary() Unary {
+	lexeme := parser.peek().Lexeme
+	switch lexeme {
+	case "-", "!":
+		parser.advance()
+		return Unary{string(lexeme), parser.peek().Value}
 	}
 }

@@ -120,6 +120,8 @@ func (parser *Parser) parse_unary() Unary {
 		if nextToken.Value == "null" {
 			if nextToken.Lexeme == "(" {
 				return Unary{string(lexeme), parser.parse_group().toString()}
+			} else if nextToken.Lexeme == "-" || nextToken.Lexeme == "!" {
+				return Unary{string(lexeme), parser.parse_unary().toString()}
 			} else {
 				return Unary{string(lexeme), parser.parse_literal().toString()}
 			}

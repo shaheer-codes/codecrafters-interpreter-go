@@ -147,6 +147,7 @@ func (parser *Parser) parse_binary() Binary {
 	lexeme := parser.peek().Lexeme
 	parser.Current--
 	left := parser.parse().toString()
+	parser.Current++
 	parser.advance()
 	return Binary{left, string(lexeme), parser.parse().toString()}
 }

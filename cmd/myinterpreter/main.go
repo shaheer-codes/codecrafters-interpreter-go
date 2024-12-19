@@ -216,7 +216,7 @@ func (lexer *Lexer) nextToken() Token {
 	default:
 		if unicode.IsDigit(rune(lexer.peek())) {
 			start := lexer.Pos
-			for unicode.IsDigit(rune(lexer.peekNext())) {
+			for unicode.IsDigit(rune(lexer.peek())) {
 				lexer.readByte()
 			}
 
@@ -228,15 +228,12 @@ func (lexer *Lexer) nextToken() Token {
 			}
 
 			number := lexer.Input[start : lexer.Pos+1]
-			fmt.Println(number)
 
 			floatNumber, _ := strconv.ParseFloat(number, 64)
 
 			if !strings.Contains(number, ".") {
-				fmt.Println("from 1")
 				token = NewToken("NUMBER", TokenType(number), fmt.Sprintf("%.1f", floatNumber))
 			} else {
-				fmt.Println("from 2")
 				token = NewToken("NUMBER", TokenType(number), number)
 			}
 		} else if unicode.IsLetter(rune(lexer.peek())) || lexer.peek() == '_' {

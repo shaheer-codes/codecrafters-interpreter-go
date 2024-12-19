@@ -54,6 +54,6 @@ func (parser *Parser) parse() Literal {
 	case "NIL":
 		return Literal{NIL, "nil"}
 	default:
-		return nil
+		return Literal{}
 	}
 }

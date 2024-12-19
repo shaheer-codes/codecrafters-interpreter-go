@@ -63,6 +63,8 @@ func (parser *Parser) parse() Statement {
 	switch parser.peek().Kind {
 	case "LEFT_PAREN":
 		return parser.parse_group()
+	case "-", "!":
+		return parser.parse_unary()
 	default:
 		return parser.parse_literal()
 	}

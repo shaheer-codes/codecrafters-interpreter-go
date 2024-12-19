@@ -1,8 +1,8 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"os"
 )
 
 type Statement interface {
@@ -74,82 +74,101 @@ func (p *Parser) atTheEnd() bool {
 	return p.Current >= len(p.Tokens)
 }
 
-func (p *Parser) parse() Statement {
+func (p *Parser) parse() (Statement, error) {
 	return p.parseExpression()
 }
 
-func (p *Parser) parseExpression() Statement {
+func (p *Parser) parseExpression() (Statement, error) {
 	return p.parseComparison()
 }
 
-func (p *Parser) parseComparison() Statement {
-	expr := p.parseTerm()
+func (p *Parser) parseComparison() (Statement, error) {
+	expr, err := p.parseTerm()
+	if err != nil {
+		return Binary{}, err
+	}
 
 	for p.match("LESS", "LESS_EQUAL", "GREATER", "GREATER_EQUAL", "EQUAL_EQUAL", "BANG_EQUAL") {
 		operator := p.previous()
-		right := p.parseTerm()
+		right, err := p.parseTerm()
+		if err != nil {
+			return Binary{}, err
+		}
 		expr = Binary{Left: expr, Operator: string(operator.Lexeme), Right: right}
 	}
 
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) parseTerm() Statement {
-	expr := p.parseFactor()
+func (p *Parser) parseTerm() (Statement, error) {
+	expr, err := p.parseFactor()
+	if err != nil {
+		return Binary{}, err
+	}
 
 	for p.match("PLUS", "MINUS") {
 		operator := p.previous()
-		right := p.parseFactor()
+		right, err := p.parseFactor()
+		if err != nil {
+			return Binary{}, err
+		}
 		expr = Binary{Left: expr, Operator: string(operator.Lexeme), Right: right}
 	}
 
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) parseFactor() Statement {
-	expr := p.parseUnary()
+func (p *Parser) parseFactor() (Statement, error) {
+	expr, err := p.parseUnary()
+	if err != nil {
+		return Unary{}, err
+	}
 
 	for p.match("STAR", "SLASH") {
 		operator := p.previous()
-		right := p.parseUnary()
+		right, err := p.parseUnary()
+		if err != nil {
+			return Binary{}, err
+		}
 		expr = Binary{Left: expr, Operator: string(operator.Lexeme), Right: right}
 	}
 
-	return expr
+	return expr, nil
 }
 
-func (p *Parser) parseUnary() Statement {
+func (p *Parser) parseUnary() (Statement, error) {
 	if p.match("BANG", "MINUS") {
 		operator := p.previous()
-		right := p.parseUnary()
-		return Unary{Operator: string(operator.Lexeme), Expr: right}
+		right, err := p.parseUnary()
+		if err != nil {
+			return Unary{}, err
+		}
+		return Unary{Operator: string(operator.Lexeme), Expr: right}, nil
 	}
 	return p.parsePrimary()
 }
 
-func (p *Parser) parsePrimary() Statement {
+func (p *Parser) parsePrimary() (Statement, error) {
 	if p.match("TRUE", "FALSE", "NIL") {
-		return Literal{Value: string(p.previous().Lexeme)}
+		return Literal{Value: string(p.previous().Lexeme)}, nil
 	}
 
 	if p.match("NUMBER", "STRING") {
-		return Literal{Value: p.previous().Value}
+		return Literal{Value: p.previous().Value}, nil
 	}
 
 	if p.match("LEFT_PAREN") {
-		expr := p.parseExpression()
-		if !p.match("RIGHT_PAREN") {
-			fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek().Lexeme)
-			errorCode = 65
-			return Group{}
+		expr, err := p.parseExpression()
+		if err != nil {
+			return Group{}, err
 		}
-		return Group{Expr: expr}
+		if !p.match("RIGHT_PAREN") {
+			return Group{}, errors.New(fmt.Sprintf("[line %v] Error: Expected ).", line))
+		}
+		return Group{Expr: expr}, errors.New(fmt.Sprintf("[line %v] Error at %v: Expected expression.", line, p.peek()))
 	}
 
-	fmt.Fprintf(os.Stderr, "[line %v] Error at '%v': Expect expression.", line, p.peek().Lexeme)
-	errorCode = 65
-
-	return Literal{}
+	panic(fmt.Sprintf("Unexpected token: %v", p.peek()))
 }
 
 func (p *Parser) match(types ...string) bool {

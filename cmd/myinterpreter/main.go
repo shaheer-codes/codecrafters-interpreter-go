@@ -100,8 +100,14 @@ func main() {
 		parser := Parser{tokens, 0}
 
 		for {
-			statement := parser.parse()
-			fmt.Printf("%v", statement.toString())
+			statement, err := parser.parse()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "%v", err)
+				errorCode = 65
+			} else {
+				fmt.Printf("%v", statement.toString())
+			}
+
 			if parser.peek().Kind == "EOF" {
 				break
 			}

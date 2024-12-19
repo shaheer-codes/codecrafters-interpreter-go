@@ -84,7 +84,7 @@ func (p *Parser) parseExpression() Statement {
 func (p *Parser) parseComparison() Statement {
 	expr := p.parseTerm()
 
-	for p.match("LESS", "LESS_EQUAL", "GREATER", "GREATER_EQUAL") {
+	for p.match("LESS", "LESS_EQUAL", "GREATER", "GREATER_EQUAL", "EQUAL_EQUAL", "BANG_EQUAL") {
 		operator := p.previous()
 		right := p.parseTerm()
 		expr = Binary{Left: expr, Operator: string(operator.Lexeme), Right: right}

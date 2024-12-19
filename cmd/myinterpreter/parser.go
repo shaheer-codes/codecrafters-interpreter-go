@@ -111,5 +111,7 @@ func (parser *Parser) parse_unary() Unary {
 	case "-", "!":
 		parser.advance()
 		return Unary{string(lexeme), parser.peek().Value}
+	default:
+		return Unary{}
 	}
 }

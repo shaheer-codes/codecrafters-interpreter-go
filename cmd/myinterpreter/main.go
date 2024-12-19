@@ -101,7 +101,7 @@ func main() {
 
 		for {
 			stmt := parser.parse()
-			stmt.toString()
+			fmt.Println(stmt.toString())
 			if parser.peek().Kind == "EOF" {
 				break
 			}

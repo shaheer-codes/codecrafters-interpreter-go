@@ -19,19 +19,19 @@ type Unary struct {
 }
 
 type Statement interface {
-	toString()
+	toString() string
 }
 
-func (literal Literal) toString() {
-	fmt.Println(literal.Value)
+func (literal Literal) toString() string {
+	return literal.Value
 }
 
-func (group Group) toString() {
-	fmt.Printf("(group %v)\n", group.Expr)
+func (group Group) toString() string {
+	return fmt.Sprintf("(group %v)", group.Expr)
 }
 
-func (unary Unary) toString() {
-	fmt.Printf("(%v %v)\n", unary.Operator, unary.Expr)
+func (unary Unary) toString() string {
+	return fmt.Sprintf("(%v %v)", unary.Operator, unary.Expr)
 }
 
 type Parser struct {
@@ -57,6 +57,10 @@ func (parser *Parser) atTheEnd() bool {
 
 func (parser *Parser) previous() Token {
 	return parser.Tokens[parser.Current-1]
+}
+
+func (parser *Parser) peekNext() Token {
+	return parser.Tokens[parser.Current+1]
 }
 
 func (parser *Parser) parse() Statement {
@@ -112,7 +116,16 @@ func (parser *Parser) parse_unary() Unary {
 	switch lexeme {
 	case "-", "!":
 		parser.advance()
-		return Unary{string(lexeme), parser.parse_literal().Value}
+		nextToken := parser.peek()
+		if nextToken.Value == "null" {
+			if nextToken.Lexeme == "(" {
+				return Unary{string(lexeme), parser.parse_group().toString()}
+			} else {
+				return Unary{string(lexeme), parser.parse_literal().toString()}
+			}
+		} else {
+			return Unary{string(lexeme), nextToken.Value}
+		}
 	default:
 		return Unary{}
 	}

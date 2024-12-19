@@ -161,10 +161,12 @@ func (p *Parser) parsePrimary() (Statement, error) {
 		if err != nil {
 			return Group{}, err
 		}
+
 		if !p.match("RIGHT_PAREN") {
 			return Group{}, fmt.Errorf("[line %v] Error: Expected )", line)
 		}
-		return Group{Expr: expr}, fmt.Errorf("[line %v] Error at %v: Expected expression", line, p.peek())
+
+		return Group{Expr: expr}, nil
 	}
 
 	return Literal{}, fmt.Errorf("[line %v] Error at %v: Expected expression", line, p.peek())

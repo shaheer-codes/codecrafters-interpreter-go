@@ -78,7 +78,19 @@ func (p *Parser) parse() Statement {
 }
 
 func (p *Parser) parseExpression() Statement {
-	return p.parseTerm()
+	return p.parseComparison()
+}
+
+func (p *Parser) parseComparison() Statement {
+	expr := p.parseTerm()
+
+	for p.match("LESS", "LESS_EQUAL", "GREATER", "GREATER_EQUAL") {
+		operator := p.previous()
+		right := p.parseTerm()
+		expr = Binary{Left: expr, Operator: string(operator.Lexeme), Right: right}
+	}
+
+	return expr
 }
 
 func (p *Parser) parseTerm() Statement {

@@ -228,7 +228,7 @@ func (lexer *Lexer) nextToken() Token {
 				}
 			}
 
-			number := lexer.Input[start:lexer.Pos]
+			number := lexer.Input[start : lexer.Pos+1]
 
 			floatNumber, _ := strconv.ParseFloat(number, 64)
 

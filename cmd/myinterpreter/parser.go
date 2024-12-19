@@ -96,7 +96,7 @@ func (parser *Parser) parse_group() Group {
 			expr = append(expr, string(parser.peek().Lexeme))
 			parser.advance()
 		}
-		return Group{fmt.Sprintf("(%v)", strings.Join(expr, " "))}
+		return Group{fmt.Sprintf("(group %v)", strings.Join(expr, " "))}
 	default:
 		return Group{}
 	}

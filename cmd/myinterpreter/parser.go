@@ -88,7 +88,7 @@ func (parser *Parser) parse_group() Group {
 	case "(":
 		parser.advance()
 		var expr []string
-		for parser.peekNext().Lexeme != ")" && parser.peek().Kind != "EOF" {
+		for parser.peek().Lexeme != ")" && parser.peek().Kind != "EOF" {
 			expr = append(expr, string(parser.previous().Lexeme))
 			parser.advance()
 		}

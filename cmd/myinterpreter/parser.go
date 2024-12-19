@@ -55,6 +55,8 @@ func (parser *Parser) parse() Literal {
 		return Literal{NIL, "nil"}
 	case "NUMBER":
 		return Literal{"NUMBER", parser.peek().Value}
+	case "STRING":
+		return Literal{"STRING", parser.peek().Value}
 	default:
 		return Literal{}
 	}

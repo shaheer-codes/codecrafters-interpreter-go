@@ -231,10 +231,10 @@ func (lexer *Lexer) nextToken() Token {
 
 			floatNumber, _ := strconv.ParseFloat(number, 64)
 
-			if !strings.Contains(number, ".") {
-				token = NewToken("NUMBER", TokenType(number), number)
-			} else {
+			if !strings.Contains(number, ".") || !strings.Contains(fmt.Sprintf("%f", floatNumber), ".") {
 				token = NewToken("NUMBER", TokenType(number), fmt.Sprintf("%.1f", floatNumber))
+			} else {
+				token = NewToken("NUMBER", TokenType(number), number)
 			}
 		} else if unicode.IsLetter(rune(lexer.peek())) || lexer.peek() == '_' {
 			start := lexer.Pos
